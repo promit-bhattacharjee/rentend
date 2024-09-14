@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:rentend/activity/AppointmentListActivity.dart';
 import 'package:rentend/activity/CreatePost.dart';
+import 'package:rentend/activity/EditPostActivity.dart';
+import 'package:rentend/activity/FavoritesActivity.dart';
+import 'package:rentend/activity/MyListingsActivity%20.dart';
+import 'package:rentend/activity/ProfileDetails.dart';
 import 'package:rentend/activity/UserLogin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rentend/activity/ViewPostActivity.dart';
@@ -17,12 +22,13 @@ class _HomeActivityState extends State<HomeActivity> {
   int _selectedIndex = 0;
 
   static List<Widget> _widgetOptions = <Widget>[
-    CreatePost(),
-
-    Viewpostactivity(), // Placeholder for Feed Screen
-    Text('My Listings Screen'), // Placeholder for My Listings Screen
-    Text('Appointments Screen'), // Placeholder for Appointments Screen
-    Text('Favourites Screen'), // Placeholder for Favourites Screen
+    ViewPostActivity(), // Placeholder for Feed Screen
+    MyListingsActivity(),
+    CreatePostActivity(),
+    AppointmentListActivity(),
+    FavoritesActivity(),
+    // ProfileDetails(email: "promitbhattacharjee.work@gmail.com"),
+    // Text('Favourites Screen'), // Placeholder for Favourites Screen
   ];
 
   void _onItemTapped(int index) {

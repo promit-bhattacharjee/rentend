@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rentend/activity/CreatePost.dart';
-import 'HomeActivity.dart';
+import 'package:rentend/Components/AuthAppBar.dart';
+import '../layout/HomeActivity.dart';
 import 'SignupActivity.dart';
-import 'DefaultSnackBar.dart';
+import '../Components/DefaultSnackBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Data/UserData.dart';
 
@@ -15,6 +15,7 @@ class UserLogin extends StatefulWidget {
 class _UserLoginState extends State<UserLogin> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -98,75 +99,78 @@ class _UserLoginState extends State<UserLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
+      appBar: AuthAppBar(),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: ElevatedButton(
-              onPressed: () => checkLogin(context),
-              child: Text("Submit"),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text("Forget Password"),
-                    style: TextButton.styleFrom(
-                      minimumSize: Size(50, 50),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: ElevatedButton(
+                onPressed: () => checkLogin(context),
+                child: Text("Submit"),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 50),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text("Forget Password"),
+                      style: TextButton.styleFrom(
+                        minimumSize: Size(50, 50),
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignupActivity()),
-                      );
-                    },
-                    child: Text("Sign Up"),
-                    style: TextButton.styleFrom(
-                      minimumSize: Size(50, 50),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignupActivity()),
+                        );
+                      },
+                      child: Text("Sign Up"),
+                      style: TextButton.styleFrom(
+                        minimumSize: Size(50, 50),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rentend/activity/DefaultSnackBar.dart';
+import 'package:rentend/Components/AuthAppBar.dart';
+import 'package:rentend/Components/DefaultSnackBar.dart';
 import 'package:rentend/main.dart';
-import 'HomeActivity.dart';
+import '../layout/HomeActivity.dart';
 
 class SignupActivity extends StatefulWidget {
   const SignupActivity({Key? key}) : super(key: key);
@@ -24,9 +25,6 @@ class _SignupActivityState extends State<SignupActivity> {
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _religionController = TextEditingController();
-
-  String _role = 'holder'; // Default role is Householder
-
   @override
   void initState() {
     super.initState();
@@ -38,7 +36,7 @@ class _SignupActivityState extends State<SignupActivity> {
   void fetchAreas() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('area').get();
+          await FirebaseFirestore.instance.collection('areas').get();
 
       List<String> areasList = [];
       querySnapshot.docs.forEach((doc) {
@@ -73,7 +71,6 @@ class _SignupActivityState extends State<SignupActivity> {
     try {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-
       // Insert additional data into Firestore
       await FirebaseFirestore.instance
           .collection('users')
@@ -85,7 +82,6 @@ class _SignupActivityState extends State<SignupActivity> {
         'area': _areaController.text,
         'age': _ageController.text,
         'religion': _religionController.text,
-        'role': _role, // Save the selected role
       });
 
       DefaultSnackbar.SuccessSnackBar("UserModel.dart Created", context);
@@ -109,6 +105,7 @@ class _SignupActivityState extends State<SignupActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AuthAppBar(),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -207,23 +204,6 @@ class _SignupActivityState extends State<SignupActivity> {
                         border: OutlineInputBorder(),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(_role == 'holder' ? 'House Holder' : 'House Renter'),
-                  Switch(
-                    value: _role == 'holder',
-                    onChanged: (bool newValue) {
-                      setState(() {
-                        _role = newValue ? 'holder' : 'renter';
-                      });
-                    },
                   ),
                 ],
               ),

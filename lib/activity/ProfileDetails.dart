@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rentend/Data/Area.dart';
-import 'package:rentend/activity/DefaultSnackBar.dart';
+import 'package:rentend/Components/DefaultSnackBar.dart';
 import '../Data/UserData.dart';
 
 class ProfileDetails extends StatefulWidget {
