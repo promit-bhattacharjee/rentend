@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rentend/Components/AuthAppBar.dart';
 import 'package:rentend/Components/DefaultSnackBar.dart';
 import 'package:rentend/main.dart';
-import '../layout/HomeActivity.dart';
 
 class SignupActivity extends StatefulWidget {
   const SignupActivity({Key? key}) : super(key: key);
@@ -23,8 +22,6 @@ class _SignupActivityState extends State<SignupActivity> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _religionController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -59,8 +56,6 @@ class _SignupActivityState extends State<SignupActivity> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _areaController.dispose();
-    _ageController.dispose();
-    _religionController.dispose();
     super.dispose();
   }
 
@@ -71,7 +66,6 @@ class _SignupActivityState extends State<SignupActivity> {
     try {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      // Insert additional data into Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(credential.user?.uid)
@@ -80,8 +74,6 @@ class _SignupActivityState extends State<SignupActivity> {
         'email': email,
         'mobile': _mobileController.text,
         'area': _areaController.text,
-        'age': _ageController.text,
-        'religion': _religionController.text,
       });
 
       DefaultSnackbar.SuccessSnackBar("UserModel.dart Created", context);
@@ -183,60 +175,35 @@ class _SignupActivityState extends State<SignupActivity> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _ageController,
-                      decoration: InputDecoration(
-                        labelText: "Age",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _religionController,
-                      decoration: InputDecoration(
-                        labelText: "Religion",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await createUser();
-                },
-                child: Text("Submit"),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                ),
-              ),
-            ),
-            Padding(
               padding: EdgeInsets.all(30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
                     padding: EdgeInsets.all(10),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await createUser();
                       },
-                      child: Text("Login"),
-                      style: TextButton.styleFrom(
-                        minimumSize: Size(50, 50),
+                      child: Text("Submit"),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(100, 50),
                       ),
                     ),
                   ),
+                  Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Login"),
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(50, 50),
+                          ),
+                        ),
+                      )),
                 ],
               ),
             ),

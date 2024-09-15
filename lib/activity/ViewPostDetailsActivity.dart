@@ -44,6 +44,8 @@ class _ViewPostDetailsActivityState extends State<ViewPostDetailsActivity> {
         'renter_email': renterEmail,
         'seeker_email': seekerEmail,
         'appointment_time': appointmentTime,
+        'accepter_contact': "",
+        "status": "requested",
         'created_at': Timestamp.now(),
         'updated_at': Timestamp.now(),
       });
@@ -198,7 +200,7 @@ class _ViewPostDetailsActivityState extends State<ViewPostDetailsActivity> {
           Map<String, dynamic> parking = data['parking'] ?? {};
           String balcony = data['details']['balcony'] ?? 'Not available';
           String bedroom = data['details']['bedroom'] ?? 'Not available';
-          String block = data['details']['block'] ?? 'Not available';
+          String block = data['address']['block'] ?? 'Not available';
           String dining = data['details']['dining'] ?? 'Not available';
 
           Timestamp createdAt = data['created_at'];
@@ -251,35 +253,143 @@ class _ViewPostDetailsActivityState extends State<ViewPostDetailsActivity> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Rent: \$${rent}',
+                                'Rent : \$${rent}',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.green, width: 1.0)),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Bedroom : ' + bedroom,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            Text(
+                                              'Washroom : ' + washroom,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Dining : ' + dining,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            Text(
+                                              'Drawing : ' + drawing,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Balcony : ' + balcony,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            Text(
+                                              'SquareFeet : ' + squareFeet,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          'Parking : ${parking['bike'] ? 'Bike ' : ''}${parking['car'] ? 'Car' : ''}',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.red, width: 1.0)),
+                                  child: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Area : ' + area,
+                                                style: TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'RoadNumber : ' + roadNumber,
+                                                style: TextStyle(fontSize: 16),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Block : ' + block,
+                                                style: TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'HouseNumber : ' + houseNumber,
+                                                style: TextStyle(fontSize: 16),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            'Floor : ' + floor,
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ],
+                                      ))),
                               SizedBox(height: 8),
-                              Text(
-                                'Description: $description',
-                                style: TextStyle(fontSize: 16),
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.black, width: 1.0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text(
+                                    'Posted On : ${dateFormat.format(updatedAt.toDate())}',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
                               ),
                               SizedBox(height: 8),
-                              Text(
-                                'Area: $area\n'
-                                'Balcony: $balcony\n'
-                                'Bedroom: $bedroom\n'
-                                'Block: $block\n'
-                                'Dining: $dining\n'
-                                'Drawing: $drawing\n'
-                                'Floor: $floor\n'
-                                'House Number: $houseNumber\n'
-                                'Rent: $rent\n'
-                                'Road Number: $roadNumber\n'
-                                'Square Feet: $squareFeet\n'
-                                'Washroom: $washroom\n'
-                                'Email: $email\n'
-                                'Parking: ${parking['bike'] ? 'Bike ' : ''}${parking['car'] ? 'Car' : ''}\n'
-                                'Post Date: ${dateFormat.format(createdAt.toDate())}\n',
-                                style: TextStyle(fontSize: 16),
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.black, width: 1.0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text(
+                                    'Description: $description',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
                               ),
                               SizedBox(height: 16),
                               Row(

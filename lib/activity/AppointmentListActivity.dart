@@ -180,14 +180,14 @@ class _AppointmentListActivityState extends State<AppointmentListActivity> {
                 },
               ),
               SizedBox(height: 20),
-              TextField(
-                controller: numberController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Enter your contact number',
-                  hintText: 'e.g. 1234567890',
-                ),
-              ),
+              //   TextField(
+              //     controller: numberController,
+              //     keyboardType: TextInputType.number,
+              //     decoration: InputDecoration(
+              //       labelText: 'Enter your contact number',
+              //       hintText: 'e.g. 1234567890',
+              //     ),
+              //   ),
             ],
           ),
           actions: <Widget>[
@@ -199,20 +199,15 @@ class _AppointmentListActivityState extends State<AppointmentListActivity> {
             ),
             TextButton(
               onPressed: () async {
-                var contactNumber = numberController.text;
-                if (contactNumber.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter a contact number.')),
-                  );
-                  return;
-                }
                 try {
+                  final prefs = await SharedPreferences.getInstance();
+                  final email = prefs.getString('email') ?? '';
                   await FirebaseFirestore.instance
                       .collection('appointments')
                       .doc(appointment.id)
                       .update({
                     'appointment_time': newAppointmentTime,
-                    'accepter_contact': contactNumber,
+                    'accepter_contact': getMobileNumber(email),
                   });
                   Navigator.of(context).pop();
                   _fetchAppointments(); // Reload data
@@ -339,150 +334,154 @@ class _AppointmentListActivityState extends State<AppointmentListActivity> {
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Appointments & Requests'),
-      ),
-      body: Column(
-        children: [
-          ToggleButtons(
-            isSelected: [_showAppointments, !_showAppointments],
-            onPressed: (index) {
-              setState(() {
-                _showAppointments = index == 0;
-              });
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('My Appointments'),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('My Requests'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: _showAppointments
-                        ? _appointments.length
-                        : _requests.length,
-                    itemBuilder: (context, index) {
-                      var appointment = _showAppointments
-                          ? _appointments[index]
-                          : _requests[index];
-                      var data = appointment.data() as Map<String, dynamic>;
-                      var appointmentTime =
-                          (data['appointment_time'] as Timestamp).toDate();
-                      var postId = data['post_id'];
-                      var postData = _posts[postId] ?? {};
-                      var imageUrls = postData['imageUrls'] ?? [];
-                      var rent = postData['details']['rent'] ?? 'N/A';
-                      var area = postData['address']['area'] ?? 'N/A';
-                      var description = postData['description'] ?? 'N/A';
+    return Column(
+      children: [
+        ToggleButtons(
+          isSelected: [_showAppointments, !_showAppointments],
+          onPressed: (index) {
+            setState(() {
+              _showAppointments = index == 0;
+            });
+          },
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('My Appointments'),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('My Requests'),
+            ),
+          ],
+        ),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: _showAppointments
+                      ? _appointments.length
+                      : _requests.length,
+                  itemBuilder: (context, index) {
+                    var appointment = _showAppointments
+                        ? _appointments[index]
+                        : _requests[index];
+                    var data = appointment.data() as Map<String, dynamic>;
+                    var appointmentTime =
+                        (data['appointment_time'] as Timestamp).toDate();
+                    var postId = data['post_id'];
+                    var postData = _posts[postId] ?? {};
+                    var imageUrls = postData['imageUrls'] ?? [];
+                    var rent = postData['details']['rent'] ?? 'N/A';
+                    var area = postData['address']['area'] ?? 'N/A';
+                    var description = postData['description'] ?? 'N/A';
 
-                      return Card(
-                        margin: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            imageUrls.isNotEmpty
-                                ? CarouselSlider.builder(
-                                    itemCount: imageUrls.length,
-                                    itemBuilder: (context, index, realIndex) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image:
-                                                NetworkImage(imageUrls[index]),
-                                            fit: BoxFit.cover,
-                                          ),
+                    return Card(
+                      margin: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          imageUrls.isNotEmpty
+                              ? CarouselSlider.builder(
+                                  itemCount: imageUrls.length,
+                                  itemBuilder: (context, index, realIndex) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(imageUrls[index]),
+                                          fit: BoxFit.cover,
                                         ),
-                                      );
-                                    },
-                                    options: CarouselOptions(
-                                      height: 200,
-                                      enlargeCenterPage: true,
-                                      enableInfiniteScroll: true,
-                                    ),
-                                  )
-                                : Container(
+                                      ),
+                                    );
+                                  },
+                                  options: CarouselOptions(
                                     height: 200,
-                                    color: Colors.grey,
-                                    child: Center(
-                                        child: Text('No Images Available')),
+                                    enlargeCenterPage: true,
+                                    enableInfiniteScroll: true,
                                   ),
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Rent: \$${rent.toString()}',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
+                                )
+                              : Container(
+                                  height: 200,
+                                  color: Colors.grey,
+                                  child: Center(
+                                      child: Text('No Images Available')),
+                                ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Rent: \$${rent.toString()}',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  'Area: ${area.toString()}',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  'Description: $description',
+                                  style: TextStyle(fontSize: 14),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Appointment Time: ${DateFormat('yyyy-MM-dd HH:mm').format(appointmentTime)}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Status: ' + data['status'],
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Renter Mobile: ' + data['accepter_contact'],
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                SizedBox(height: 10),
+                                if (_showAppointments &&
+                                    data['status'] != 'accepted') ...[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _acceptAppointment(appointment);
+                                          _appointments.clear();
+                                        },
+                                        child: Text('Accept'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _rescheduleAppointment(appointment);
+                                        },
+                                        child: Text('Reschedule'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _cancelAppointment(appointment);
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    'Area: ${area.toString()}',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.normal),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    'Description: $description',
-                                    style: TextStyle(fontSize: 14),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    'Appointment Time: ${DateFormat('yyyy-MM-dd HH:mm').format(appointmentTime)}',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  SizedBox(height: 10),
-                                  if (_showAppointments) ...[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _acceptAppointment(appointment);
-                                          },
-                                          child: Text('Accept'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _rescheduleAppointment(appointment);
-                                          },
-                                          child: Text('Reschedule'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _cancelAppointment(appointment);
-                                          },
-                                          child: Text('Cancel'),
-                                        ),
-                                      ],
-                                    ),
-                                  ]
-                                ],
-                              ),
+                                ]
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }

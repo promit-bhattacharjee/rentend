@@ -16,12 +16,6 @@ class _UserLoginState extends State<UserLogin> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-  }
-
   Future<String> getUserData(email) async {
     var JsonData = await UserData().getUserData(_emailController.text);
     return JsonData;
@@ -44,29 +38,10 @@ class _UserLoginState extends State<UserLogin> {
     // }
   }
 
-  Future<void> checkLoginStatus() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool? user = prefs.getBool('user');
-
-    if (user == true) {
-      // final String userData = prefs.getString('userData').toString();
-      final String email = prefs.getString('email').toString();
-      DefaultSnackbar.SuccessSnackBar("SuccessFully Loged In ", context);
-      Future.delayed(Duration(seconds: 1), () {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeActivity(),
-            ));
-      });
-    }
-  }
-
   Future<void> setLoginStatus() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('user', true);
     prefs.setString('email', _emailController.text);
-    // prefs.setString('userData', userData);
   }
 
   void checkLogin(BuildContext context) async {
@@ -80,12 +55,7 @@ class _UserLoginState extends State<UserLogin> {
       await setLoginStatus();
       DefaultSnackbar.SuccessSnackBar("SuccessFully Loged In ", context);
       Future.delayed(Duration(seconds: 1), () {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  HomeActivity(userEmail: _emailController.text),
-            ));
+        Navigator.pushNamed(context, "/homePage");
       });
     } on FirebaseAuthException catch (e) {
       // Handle Firebase Auth exceptions
@@ -143,7 +113,9 @@ class _UserLoginState extends State<UserLogin> {
                   Padding(
                     padding: EdgeInsets.all(10),
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/ChangePassword");
+                      },
                       child: Text("Forget Password"),
                       style: TextButton.styleFrom(
                         minimumSize: Size(50, 50),

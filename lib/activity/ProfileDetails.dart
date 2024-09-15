@@ -1,17 +1,16 @@
 import 'dart:convert';
 
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rentend/Data/Area.dart';
 import 'package:rentend/Components/DefaultSnackBar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Data/UserData.dart';
 
 class ProfileDetails extends StatefulWidget {
-  final String email;
-
-  const ProfileDetails({Key? key, required this.email}) : super(key: key);
+  const ProfileDetails({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _ProfileDetailsState createState() => _ProfileDetailsState();
@@ -21,14 +20,10 @@ class _ProfileDetailsState extends State<ProfileDetails> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _religionController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
 
   Map<String, dynamic>? userData;
   List<String> areas = [];
+  String? _selectedArea;
 
   @override
   void initState() {
@@ -39,50 +34,45 @@ class _ProfileDetailsState extends State<ProfileDetails> {
 
   Future<void> fetchUserData() async {
     try {
-      String jsonData = await UserData().getUserData(widget.email);
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('email') ?? '';
+      String jsonData = await UserData().getUserData(email);
       setState(() {
         userData = json.decode(jsonData);
         _nameController.text = userData!['name'];
         _mobileController.text = userData!['mobile'];
-        _areaController.text = userData!['area'];
-        _ageController.text = userData!['age'];
-        _religionController.text = userData!['religion'];
+        _selectedArea = userData!['area']; // Set the selected area
+        _areaController.text = _selectedArea ?? '';
       });
     } catch (e) {
       print('Error fetching user data: $e');
+      DefaultSnackbar.AlertSnackBar("Failed to fetch user data", context);
     }
   }
 
   Future<void> updateUser() async {
     try {
-      if (_passwordController.text.isNotEmpty &&
-          _passwordController.text == _confirmPasswordController.text) {
-        User? user = FirebaseAuth.instance.currentUser;
-        await user?.updatePassword(_passwordController.text);
-      }
-
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userData!['uid'])
           .update({
         'name': _nameController.text,
         'mobile': _mobileController.text,
-        'area': _areaController.text,
-        'age': _ageController.text,
-        'religion': _religionController.text,
+        'area': _selectedArea, // Use the selected area
       });
 
       DefaultSnackbar.SuccessSnackBar("Profile Updated Successfully", context);
       await fetchUserData();
     } catch (e) {
       print('Error updating user data: $e');
+      DefaultSnackbar.AlertSnackBar("Failed to update profile", context);
     }
   }
 
   Future<void> fetchAreas() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('area').get();
+          await FirebaseFirestore.instance.collection('areas').get();
       List<String> areasList = [];
       querySnapshot.docs.forEach((doc) {
         List<dynamic> areaValues = doc.get('area');
@@ -90,9 +80,13 @@ class _ProfileDetailsState extends State<ProfileDetails> {
       });
       setState(() {
         areas = areasList;
+        if (areas.isNotEmpty) {
+          _selectedArea = areas[0]; // Set default selected area
+        }
       });
     } catch (e) {
       print('Error fetching areas: $e');
+      DefaultSnackbar.AlertSnackBar("Failed to fetch areas", context);
     }
   }
 
@@ -100,11 +94,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
   void dispose() {
     _nameController.dispose();
     _mobileController.dispose();
+
     _areaController.dispose();
-    _ageController.dispose();
-    _religionController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -132,22 +123,12 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                         labelText: 'Mobile', border: OutlineInputBorder()),
                   ),
                   SizedBox(height: 10),
-                  TextField(
-                    controller: _ageController,
-                    decoration: InputDecoration(
-                        labelText: 'Age', border: OutlineInputBorder()),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    controller: _religionController,
-                    decoration: InputDecoration(
-                        labelText: 'Religion', border: OutlineInputBorder()),
-                  ),
-                  SizedBox(height: 10),
                   DropdownButtonFormField<String>(
+                    value: _selectedArea,
                     onChanged: (String? newValue) {
                       setState(() {
-                        _areaController.text = newValue!;
+                        _selectedArea = newValue;
+                        _areaController.text = newValue ?? '';
                       });
                     },
                     items: areas.map<DropdownMenuItem<String>>((String value) {
@@ -157,17 +138,28 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                       );
                     }).toList(),
                     decoration: InputDecoration(
-                      labelText: _areaController.text,
+                      labelText: 'Area',
                       border: OutlineInputBorder(),
                     ),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      updateUser();
-                    },
-                    child: Text('Update Profile'),
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          updateUser();
+                        },
+                        child: Text('Update Profile'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/ChangePassword");
+                        },
+                        child: Text('Reset Password'),
+                      )
+                    ],
+                  )
                 ],
               ),
             ),

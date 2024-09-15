@@ -91,43 +91,50 @@ class ViewPostActivity extends StatelessWidget {
                           ),
                         )
                       : Placeholder(fallbackHeight: 150),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Rent: \$${rent}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Rent : \$${rent}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "Area : " + area,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      description,
+                      "Description : " + description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      area,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
+
                   Container(
-                    height: 50, // Extended bottom of the card
-                    color:
-                        Colors.grey[200], // Background color for extended area
+                    height: 50,
+                    // color: Colors.grey[200],
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () {
                           print(docId);
-                          // Navigate to ViewPostDetailsActivity with document ID
                           Navigator.push(
                             context,
                             MaterialPageRoute(

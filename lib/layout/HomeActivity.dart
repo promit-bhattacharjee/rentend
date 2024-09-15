@@ -5,14 +5,15 @@ import 'package:rentend/activity/EditPostActivity.dart';
 import 'package:rentend/activity/FavoritesActivity.dart';
 import 'package:rentend/activity/MyListingsActivity%20.dart';
 import 'package:rentend/activity/ProfileDetails.dart';
+import 'package:rentend/activity/SignupActivity.dart';
 import 'package:rentend/activity/UserLogin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rentend/activity/ViewPostActivity.dart';
+import 'package:rentend/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeActivity extends StatefulWidget {
-  final String? userEmail;
-  HomeActivity({Key? key, this.userEmail}) : super(key: key);
+  HomeActivity({Key? key}) : super(key: key);
 
   @override
   _HomeActivityState createState() => _HomeActivityState();
@@ -37,25 +38,78 @@ class _HomeActivityState extends State<HomeActivity> {
     });
   }
 
+  String? _selectedItem;
+
+  final List<DropdownMenuItem<String>> _dropdownMenuEntries = [
+    DropdownMenuItem<String>(
+      value: 'Profile',
+      child: Row(
+        children: [
+          Icon(Icons.account_circle),
+          SizedBox(width: 8),
+          Text('Profile'),
+        ],
+      ),
+    ),
+    DropdownMenuItem<String>(
+      value: 'Logout',
+      child: Row(
+        children: [
+          Icon(Icons.logout_rounded),
+          SizedBox(width: 8),
+          Text('Logout'),
+        ],
+      ),
+    ),
+    DropdownMenuItem<String>(
+      value: 'PrivacyPolicy',
+      child: Row(
+        children: [
+          Icon(Icons.policy),
+          SizedBox(width: 8),
+          Text('Privacy&Policy'),
+        ],
+      ),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
+        automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              final SharedPreferences prefs =
-                  await SharedPreferences.getInstance();
-              prefs.setBool('user', false);
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => UserLogin()),
-              );
-            },
-          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: DropdownButton<String>(
+              value: _selectedItem,
+              hint: Text('Profile'),
+              items: _dropdownMenuEntries,
+              onChanged: (String? newValue) {
+                setState(() async {
+                  _selectedItem = newValue;
+                  if (newValue == 'Profile') {
+                    // Navigate to ProfileDetails screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileDetails(),
+                      ),
+                    );
+                  } else if (newValue == 'Logout') {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.clear(); // This will remove all stored data
+                    Navigator.pushNamed(context, "/loginPage");
+                  } else if (newValue == 'PrivacyPolicy') {
+                    Navigator.pushNamed(context, "/PrivacyPolicyPage");
+                  }
+                });
+              },
+              isDense: true,
+            ),
+          )
         ],
       ),
       body: Center(
